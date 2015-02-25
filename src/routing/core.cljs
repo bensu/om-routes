@@ -1,5 +1,7 @@
 (ns ^:figwheel-always routing.core
+    (:require-macros [cljs.core.async.macros :refer [go]])
     (:require [om.core :as om :include-macros true]
+              [cljs.core.async :as async :refer [put! chan alts!]]
               [om.dom :as dom :include-macros true]
               [secretary.core :as secretary :refer-macros [defroute]]
               [goog.events :as events]
@@ -40,32 +42,50 @@
   [url]
   (.assign (.-location js/window) "#next") )
 
-(om/root
- (fn [data owner]
-   (reify
-     om/IRender
-     (render [_]
-       (dom/div nil
-                (apply dom/div nil
-                       (if (get-in data [:view :edit?])
-                         (om/build-all edit-count (:type data))
-                         (om/build-all view-count (:type data))))
-                ;; The button is the from state to routes binding
-                (dom/button #js {:onClick
-                                 (fn [_] (om/transact! data [:view :edit?] not))}
-                            (if (get-in data [:view :edit?])
-                              "View"
-                              "Edit"))
-                ;; The links are the routes to state binding
-                (dom/a #js {:href "#view"}
-                       "View")
-                (dom/a #js {:href "#edit"}
-                       "Edit")
-                (dom/a #js {:onClick
-                            (fn [_] (go-to "#next"))}
-                       "Next")))))
- app-state
- {:target (. js/document (getElementById "app"))})
+(let [tx-chan (chan)
+      tx-pub-chan (async/pub tx-chan (fn [_] :txs))]
+  (om/root
+   (fn [data owner]
+     (reify
+       om/IWillMount
+       (will-mount [_]
+         ;; listen on cursor
+         (let [tx-chan (om/get-shared owner :tx-chan)
+               txs (chan)]
+           (async/sub tx-chan :txs txs)
+           (om/set-state! owner :txs txs)
+           (go (loop []
+                 (let [[v c] (<! txs)]
+                   (println v)
+                   (println c))
+                 (recur))))
+         )
+       om/IRender
+       (render [_]
+         (dom/div nil
+                  (apply dom/div nil
+                         (if (get-in data [:view :edit?])
+                           (om/build-all edit-count (:type data))
+                           (om/build-all view-count (:type data))))
+                  ;; The button is the from state to routes binding
+                  (dom/button #js {:onClick
+                                   (fn [_] (om/transact! data [:view :edit?] not))}
+                              (if (get-in data [:view :edit?])
+                                "View"
+                                "Edit"))
+                  ;; The links are the routes to state binding
+                  (dom/a #js {:href "#view"}
+                         "View")
+                  (dom/a #js {:href "#edit"}
+                         "Edit")
+                  (dom/a #js {:onClick
+                              (fn [_] (go-to "#next"))}
+                         "Next")))))
+   app-state
+   {:target (. js/document (getElementById "app"))
+    :shared {:tx-chan tx-pub-chan}
+    :tx-listen (fn [tx-data root-cursor]
+                 (put! tx-chan [tx-data root-cursor]))}))
 
 
 ;; Plugin Secretary to Goog History
