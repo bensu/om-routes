@@ -23,9 +23,13 @@
    (dom/button #js {:onClick (fn [_] (om/transact! data :count inc))}
                (:count data))))
 
+(defroute "/edit" {:as params}
+  (println "dispatching view")
+  (swap! app-state #(assoc-in % [:view :edit?] true)))
+
 (defroute "/view" {:as params}
   (println "dispatching view")
-  (reset! app-state [:view :edit?] false))
+  (swap! app-state #(assoc-in % [:view :edit?] false)))
 
 (om/root
  (fn [data owner]
@@ -34,15 +38,19 @@
        (dom/div nil
                 (apply dom/div nil
                        (if (get-in data [:view :edit?])
-                         (om/build-all view-count (:type data))
-                         (om/build-all edit-count (:type data))))
+                         (om/build-all edit-count (:type data))
+                         (om/build-all view-count (:type data))))
+                ;; The button is the from state to routes binding
                 (dom/button #js {:onClick
                                  (fn [_] (om/transact! data [:view :edit?] not))}
                             (if (get-in data [:view :edit?])
-                              "Edit"
-                              "View"))
+                              "View"
+                              "Edit"))
+                ;; The links are the routes to state binding
                 (dom/a #js {:href "#view"}
-                       "Navigate")))))
+                       "View")
+                (dom/a #js {:href "#edit"}
+                       "Edit")))))
  app-state
  {:target (. js/document (getElementById "app"))})
 
