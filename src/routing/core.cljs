@@ -10,10 +10,10 @@
 
 (enable-console-print!)
 
-(defonce app-state (atom {:view {:edit? false
+(defonce app-state (atom {:view {:mode :edit 
                                  :type 0}
-                          :type [{:count 0}
-                                 {:count 0}]}))
+                          :counters [{:count 0}
+                                     {:count 0}]}))
 
 (defn view-count [data owner]
   (om/component
@@ -25,22 +25,25 @@
    (dom/button #js {:onClick (fn [_] (om/transact! data :count inc))}
                (:count data))))
 
-(defroute "/edit" {:as params}
-  (println "dispatching view")
-  (swap! app-state #(assoc-in % [:view :edit?] true)))
+(defn state->url [new-state]
+  (if (get-in new-state [:view :edit?])
+    "#edit"
+    "#view"))
 
-(defroute "/view" {:as params}
-  (println "dispatching view")
-  (swap! app-state #(assoc-in % [:view :edit?] false)))
+(defn url->state [url]
+  (keyword url))
 
-(defroute "/next" {:as params}
-  (println "next")
-  (swap! app-state #(update-in % [:type 0 :count] inc)))
+
+;; API
+
+(defroute "/:id" {:as params}
+  (println "dispatching view")
+  (swap! app-state #(assoc-in % [:view :mode] (url->state (:id params)))))
 
 (defn go-to
   "Goes to the specified url"
   [url]
-  (.assign (.-location js/window) url) )
+  (.assign (.-location js/window) url))
 
 (let [tx-chan (chan)
       tx-pub-chan (async/pub tx-chan (fn [_] :txs))]
@@ -49,7 +52,6 @@
      (reify
        om/IWillMount
        (will-mount [_]
-         ;; listen on cursor
          (let [tx-chan (om/get-shared owner :tx-chan)
                txs (chan)]
            (async/sub tx-chan :txs txs)
@@ -57,32 +59,33 @@
            (go (loop []
                  (let [[v c] (<! txs)
                        {:keys [path new-value new-state]} v]
-                   (go-to (if new-value "#edit" "#view"))
+                   (go-to (state->url new-state))
                    (println new-value)
                    (println c))
-                 (recur))))
-         )
+                 (recur)))))
        om/IRender
        (render [_]
          (dom/div nil
                   (apply dom/div nil
-                         (if (get-in data [:view :edit?])
-                           (om/build-all edit-count (:type data))
-                           (om/build-all view-count (:type data))))
+                         (case (get-in data [:view :mode])
+                           :edit (om/build-all edit-count (:counters data))
+                           (om/build-all view-count (:counters data))))
+                  (dom/h1 nil (str (get-in data [:view :mode])))
                   ;; The button is the from state to routes binding
                   (dom/button #js {:onClick
-                                   (fn [_] (om/transact! data [:view :edit?] not))}
-                              (if (get-in data [:view :edit?])
-                                "View"
-                                "Edit"))
+                                   (fn [_] (om/update! data [:view :mode] :list))}
+                              "List")
+                  (dom/button #js {:onClick
+                                   (fn [_] (om/update! data [:view :mode] :edit))}
+                              "Edit")
+                  (dom/button #js {:onClick
+                                   (fn [_] (om/update! data [:view :mode] :view))}
+                              "View")
                   ;; The links are the routes to state binding
-                  (dom/a #js {:href "#view"}
-                         "View")
-                  (dom/a #js {:href "#edit"}
-                         "Edit")
-                  (dom/a #js {:onClick
-                              (fn [_] (go-to "#next"))}
-                         "Next")))))
+                  (dom/br nil)
+                  (dom/a #js {:href "#list"} "List")
+                  (dom/a #js {:href "#edit"} "Edit")
+                  (dom/a #js {:href "#view"} "View")))))
    app-state
    {:target (. js/document (getElementById "app"))
     :shared {:tx-chan tx-pub-chan}
@@ -92,5 +95,6 @@
 
 ;; Plugin Secretary to Goog History
 (let [h (History.)]
-  (goog.events/listen h EventType/NAVIGATE #(secretary/dispatch! (.-token %)))
+  (goog.events/listen h EventType/NAVIGATE #(secretary/dispatch!
+                                             (do (println "ASD") (.-token %))))
   (doto h (.setEnabled true)))
