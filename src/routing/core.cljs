@@ -31,9 +31,19 @@
   (println "dispatching view")
   (swap! app-state #(assoc-in % [:view :edit?] false)))
 
+(defroute "/next" {:as params}
+  (println "next")
+  (swap! app-state #(update-in % [:type 0 :count] inc)))
+
+(defn go-to
+  "Goes to the specified url"
+  [url]
+  (.assign (.-location js/window) "#next") )
+
 (om/root
  (fn [data owner]
-   (reify om/IRender
+   (reify
+     om/IRender
      (render [_]
        (dom/div nil
                 (apply dom/div nil
@@ -50,11 +60,15 @@
                 (dom/a #js {:href "#view"}
                        "View")
                 (dom/a #js {:href "#edit"}
-                       "Edit")))))
+                       "Edit")
+                (dom/a #js {:onClick
+                            (fn [_] (go-to "#next"))}
+                       "Next")))))
  app-state
  {:target (. js/document (getElementById "app"))})
 
 
+;; Plugin Secretary to Goog History
 (let [h (History.)]
   (goog.events/listen h EventType/NAVIGATE #(secretary/dispatch! (.-token %)))
   (doto h (.setEnabled true)))
