@@ -40,7 +40,7 @@
 (defn go-to
   "Goes to the specified url"
   [url]
-  (.assign (.-location js/window) "#next") )
+  (.assign (.-location js/window) url) )
 
 (let [tx-chan (chan)
       tx-pub-chan (async/pub tx-chan (fn [_] :txs))]
@@ -55,8 +55,10 @@
            (async/sub tx-chan :txs txs)
            (om/set-state! owner :txs txs)
            (go (loop []
-                 (let [[v c] (<! txs)]
-                   (println v)
+                 (let [[v c] (<! txs)
+                       {:keys [path new-value new-state]} v]
+                   (go-to (if new-value "#edit" "#view"))
+                   (println new-value)
                    (println c))
                  (recur))))
          )
