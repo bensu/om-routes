@@ -46,6 +46,7 @@
   [url]
   (.assign (.-location js/window) url))
 
+;; FIX: Generalize this 
 (defn- share-path?
   "Checks if the path has the specified root.
    Ex: root = [:view :mode]
@@ -76,14 +77,14 @@
        (will-mount [_]
          (let [cursor-path (to-indexed cursor-path)]
            (defroute om-routes url-pattern {:as params}
-             (swap! app-state #(assoc-in % cursor-path (url->state params))))
+             ;; Now I'm inside om I can use react and treate it as a cursor.
+             (om/transact! data #(assoc-in % cursor-path (url->state params))))
            (let [tx-chan (om/get-shared owner :tx-chan)
                  txs (chan)]
              (async/sub tx-chan :nav txs)
              (om/set-state! owner :nav txs)
              (go (loop []
-                   (let [[v c] (<! txs)
-                         {:keys [path new-value new-state]} v]
+                   (let [[{:keys [new-state]} _] (<! txs)]
                      (go-to (state->url (get-in new-state cursor-path))))
                    (recur))))))
        om/IRender
