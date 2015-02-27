@@ -24,6 +24,31 @@
    (dom/button #js {:onClick (fn [_] (om/transact! data :count inc))}
                (:count data))))
 
+(defn view-component [data owner]
+  (om/component
+   (dom/div nil
+            (apply dom/div nil
+                   (case (get-in data [:view :mode])
+                     :edit (om/build-all edit-count (:counters data))
+                     (om/build-all view-count (:counters data))))
+            (dom/h1 nil (name (get-in data [:view :mode])))
+            (dom/h1 nil (get-in data [:view :type]))
+            ;; The button is the from state to routes binding
+            (dom/button #js {:onClick
+                             (fn [_] (om/update! data [:view :mode] :list))}
+                        "List")
+            (dom/button #js {:onClick
+                             (fn [_] (om/update! data [:view :mode] :edit))}
+                        "Edit")
+            (dom/button #js {:onClick
+                             (fn [_] (om/update! data [:view :mode] :view))}
+                        "View")
+            ;; The links are the routes to state binding
+            (dom/br nil)
+            (dom/a #js {:href "#list/0"} "List")
+            (dom/a #js {:href "#edit/0"} "Edit")
+            (dom/a #js {:href "#view/0"} "View"))))
+
 ;; Things for the API
 
 (def cursor-path :view)
@@ -66,51 +91,42 @@
     cursor-path
     [cursor-path]))
 
+(defn om-routes [data owner opts]
+  (reify
+    om/IWillMount
+    (will-mount [_]
+      (let [cursor-path (to-indexed (:cursor-path opts))]
+        (defroute routes (:url-pattern opts) {:as params}
+          ;; Now I'm inside om I can use react and treate it as a cursor.
+          (om/transact! data #(assoc-in % cursor-path
+                                        ((:url->state opts) params))))
+        (let [tx-chan (om/get-shared owner :tx-chan)
+              txs (chan)]
+          (async/sub tx-chan :nav txs)
+          (om/set-state! owner :nav txs)
+          (go (loop []
+                (let [[{:keys [new-state]} _] (<! txs)]
+                  (go-to ((:state->url opts) (get-in new-state cursor-path))))
+                (recur))))))
+    om/IRender
+    (render [_]
+      (om/build (:view opts) data))))
+
 (let [tx-chan (chan)
-      tx-pub-chan (async/pub tx-chan
-                             (fn [{:keys [path]}]
-                               (if (share-path? cursor-path path) :nav)))]
+      tx-pub-chan
+      (async/pub tx-chan (fn [{:keys [path]}]
+                           (if (share-path? cursor-path path) :nav)))]
   (om/root
    (fn [data owner]
      (reify
-       om/IWillMount
-       (will-mount [_]
-         (let [cursor-path (to-indexed cursor-path)]
-           (defroute om-routes url-pattern {:as params}
-             ;; Now I'm inside om I can use react and treate it as a cursor.
-             (om/transact! data #(assoc-in % cursor-path (url->state params))))
-           (let [tx-chan (om/get-shared owner :tx-chan)
-                 txs (chan)]
-             (async/sub tx-chan :nav txs)
-             (om/set-state! owner :nav txs)
-             (go (loop []
-                   (let [[{:keys [new-state]} _] (<! txs)]
-                     (go-to (state->url (get-in new-state cursor-path))))
-                   (recur))))))
        om/IRender
        (render [_]
-         (dom/div nil
-                  (apply dom/div nil
-                         (case (get-in data [:view :mode])
-                           :edit (om/build-all edit-count (:counters data))
-                           (om/build-all view-count (:counters data))))
-                  (dom/h1 nil (name (get-in data [:view :mode])))
-                  (dom/h1 nil (get-in data [:view :type]))
-                  ;; The button is the from state to routes binding
-                  (dom/button #js {:onClick
-                                   (fn [_] (om/update! data [:view :mode] :list))}
-                              "List")
-                  (dom/button #js {:onClick
-                                   (fn [_] (om/update! data [:view :mode] :edit))}
-                              "Edit")
-                  (dom/button #js {:onClick
-                                   (fn [_] (om/update! data [:view :mode] :view))}
-                              "View")
-                  ;; The links are the routes to state binding
-                  (dom/br nil)
-                  (dom/a #js {:href "#list/0"} "List")
-                  (dom/a #js {:href "#edit/0"} "Edit")
-                  (dom/a #js {:href "#view/0"} "View")))))
+         (om/build om-routes data
+                   {:opts {:view view-component
+                           :cursor-path cursor-path
+                           :url-pattern url-pattern
+                           :url->state url->state
+                           :state->url state->url}}))))
    app-state
    {:target (. js/document (getElementById "app"))
     :shared {:tx-chan tx-pub-chan}
