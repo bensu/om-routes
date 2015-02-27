@@ -3,7 +3,6 @@
     (:require [om.core :as om :include-macros true]
               [cljs.core.async :as async :refer [put! chan alts!]]
               [om.dom :as dom :include-macros true]
-              [secretary.core :as secretary :refer-macros [defroute]]
               [bidi.bidi :as bidi]
               [goog.events :as events]
               [goog.history.EventType :as EventType])
@@ -99,9 +98,6 @@
     om/IWillMount
     (will-mount [_]
       (let [cursor-path (to-indexed (:cursor-path opts))]
-        #_(defroute routes (:url-pattern opts) {:as params}
-            ;; Now I'm inside om I can use react and treate it as a cursor.
-            )
         (let [tx-chan (om/get-shared owner :tx-chan)
               txs (chan)]
           (async/sub tx-chan :nav txs)
