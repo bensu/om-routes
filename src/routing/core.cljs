@@ -107,10 +107,17 @@
           (go (loop []
                 (let [[{:keys [new-state]} _] (<! txs)]
                   (go-to ((:state->url opts) (get-in new-state cursor-path))))
-                (recur))))))
+                (recur)))
+          (let [h (History.)]
+            (goog.events/listen h EventType/NAVIGATE
+                                #(secretary/dispatch! (.-token %)))
+            (doto h (.setEnabled true))))))
     om/IRender
     (render [_]
       (om/build (:view opts) data))))
+
+;; The only part that is not extracted away is the matching function
+;; for the pub channel
 
 (let [tx-chan (chan)
       tx-pub-chan
@@ -135,7 +142,4 @@
 
 
 ;; Plugin Secretary to Goog History
-(let [h (History.)]
-  (goog.events/listen h EventType/NAVIGATE
-                      #(secretary/dispatch! (.-token %)))
-  (doto h (.setEnabled true)))
+
