@@ -4,6 +4,7 @@
               [cljs.core.async :as async :refer [put! chan alts!]]
               [om.dom :as dom :include-macros true]
               [secretary.core :as secretary :refer-macros [defroute]]
+              [bidi.bidi :as bidi]
               [goog.events :as events]
               [goog.history.EventType :as EventType])
     (:import goog.History))
@@ -63,7 +64,9 @@
   {:mode (keyword mode)
    :type (js/parseInt type)})
 
-
+(def route [[:mode "/" :type] 
+            (fn [params]
+              (url->state params))])
 ;; API
 
 (defn- go-to
@@ -96,10 +99,9 @@
     om/IWillMount
     (will-mount [_]
       (let [cursor-path (to-indexed (:cursor-path opts))]
-        (defroute routes (:url-pattern opts) {:as params}
-          ;; Now I'm inside om I can use react and treate it as a cursor.
-          (om/transact! data #(assoc-in % cursor-path
-                                        ((:url->state opts) params))))
+        #_(defroute routes (:url-pattern opts) {:as params}
+            ;; Now I'm inside om I can use react and treate it as a cursor.
+            )
         (let [tx-chan (om/get-shared owner :tx-chan)
               txs (chan)]
           (async/sub tx-chan :nav txs)
@@ -109,8 +111,13 @@
                   (go-to ((:state->url opts) (get-in new-state cursor-path))))
                 (recur)))
           (let [h (History.)]
-            (goog.events/listen h EventType/NAVIGATE
-                                #(secretary/dispatch! (.-token %)))
+            (goog.events/listen
+             h EventType/NAVIGATE
+             (fn [url]
+               (let [{:keys [handler route-params]}
+                     (bidi/match-route route (.-token url))]
+                 (om/transact! data #(assoc-in % cursor-path
+                                               (handler route-params))))))
             (doto h (.setEnabled true))))))
     om/IRender
     (render [_]
