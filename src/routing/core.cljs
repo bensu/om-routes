@@ -53,8 +53,6 @@
 
 (def cursor-path :view)
 
-(def url-pattern "/:mode/:type")
-
 (defn state->url [new-state]
   (str "#" (name (get-in new-state [:mode]))
        "/" (get-in new-state [:type])))
@@ -63,9 +61,10 @@
   {:mode (keyword mode)
    :type (js/parseInt type)})
 
-(def route [[:mode "/" :type] 
-            (fn [params]
-              (url->state params))])
+(def route [[:mode "/" :type] :handler])
+
+(def handler-map {:handler (fn [params]
+                             (url->state params))})
 ;; API
 
 (defn- go-to
@@ -104,6 +103,8 @@
           (om/set-state! owner :nav txs)
           (go (loop []
                 (let [[{:keys [new-state]} _] (<! txs)]
+                  (println "ASF")
+                  #_(println (bidi/path-for :handler new-state))
                   (go-to ((:state->url opts) (get-in new-state cursor-path))))
                 (recur)))
           (let [h (History.)]
@@ -112,8 +113,9 @@
              (fn [url]
                (let [{:keys [handler route-params]}
                      (bidi/match-route route (.-token url))]
-                 (om/transact! data #(assoc-in % cursor-path
-                                               (handler route-params))))))
+                 (om/transact! data
+                               #(assoc-in % cursor-path
+                                          ((handler-map handler) route-params))))))
             (doto h (.setEnabled true))))))
     om/IRender
     (render [_]
@@ -134,7 +136,6 @@
          (om/build om-routes data
                    {:opts {:view view-component
                            :cursor-path cursor-path
-                           :url-pattern url-pattern
                            :url->state url->state
                            :state->url state->url}}))))
    app-state
