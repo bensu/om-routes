@@ -7,56 +7,45 @@
 
 (enable-console-print!)
 
-(defonce app-state (atom {:view {:mode :edit 
-                                 :type 0}
-                          :counters [{:count 0}
-                                     {:count 0}]}))
+(defonce app-state (atom {:nav {:color :red}
+                          :count 0}))
 
-(defn view-count [data owner]
-  (om/component
-   (dom/div nil (:count data))))
+(defn nav-to [view-cursor color]
+  (om/update! view-cursor [:nav :color] color :routing.core/nav))
+
+(defn get-color [data]
+  (get-in data [:nav :color]))
 
 (defn edit-count [data owner]
   (om/component
-   (dom/button #js {:onClick (fn [_] (om/transact! data :count inc))}
+   (dom/button #js {:onClick (fn [_] (om/transact! data :count inc))
+                    :style #js {"backgroundColor" (name (get-color data))}}
                (:count data))))
-
-(defn nav-to [view-cursor mode]
-  (om/update! view-cursor [:view :mode] mode :routing.core/nav))
 
 (defn view-component [data owner]
   (om/component
    (dom/div nil
-            (apply dom/div nil
-                   (case (get-in data [:view :mode])
-                     :edit (om/build-all edit-count (:counters data))
-                     (om/build-all view-count (:counters data))))
-            (dom/h1 nil (name (get-in data [:view :mode])))
-            (dom/h1 nil (get-in data [:view :type]))
+            (dom/div nil
+                     (om/build edit-count data))
+            (dom/h1 nil (name (get-color data)))
             ;; The button is the from state to routes binding
-            (dom/button #js {:onClick (fn [_] (nav-to data :list))}
-                        "List")
-            (dom/button #js {:onClick (fn [_] (nav-to data :edit))}
-                        "Edit")
-            (dom/button #js {:onClick (fn [_] (nav-to data :view))}
-                        "View")
+            (dom/button #js {:onClick (fn [_] (nav-to data :red))}
+                        "Red")
+            (dom/button #js {:onClick (fn [_] (nav-to data :blue))}
+                        "Blue")
             ;; The links are the routes to state binding
             (dom/br nil)
-            (dom/a #js {:href "#list/0"} "List")
-            (dom/a #js {:href "#edit/0"} "Edit")
-            (dom/a #js {:href "#view/0"} "View"))))
+            (dom/a #js {:href "#red"} "Red")
+            (dom/a #js {:href "#blue"} "Blue"))))
 
 ;; Things for the API
 
-(defn url->state [{:keys [mode type]}]
-  {:mode (keyword mode)
-   :type (js/parseInt type)})
+(defn url->state [{:keys [color]}]
+  {:color (keyword color)})
 
-(def cursor-path :view)
+(def cursor-path :nav)
 
-(def route [[:mode "/" :type] (routing/make-handler url->state)])
-
-;; API
+(def route [["#" :color] (routing/make-handler url->state)])
 
 (let [tx-chan (chan)
       tx-pub-chan
