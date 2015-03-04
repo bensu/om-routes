@@ -1,7 +1,7 @@
-(ns ^:figwheel-always routing.core
+(ns routing.core
     (:require-macros [cljs.core.async.macros :refer [go]])
-    (:require [om.core :as om :include-macros true]
-              [cljs.core.async :as async :refer [put! chan alts!]]
+    (:require [om.core :as om]
+              [cljs.core.async :as async :refer [put! chan]]
               [bidi.bidi :as bidi]
               [goog.events :as events]
               [goog.history.EventType :as EventType])
@@ -13,18 +13,6 @@
   "Goes to the specified url"
   [url]
   (.assign (.-location js/window) url))
-
-;; FIX: Generalize this 
-(defn- share-path?
-  "Checks if the path has the specified root.
-   Ex: root = [:view :mode]
-       path = [:view :mode 0 0 1]
-       returns true.
-   Ex: root = [:view :edit]
-       path = [:view :list]
-       returns false"
-  [root path]
-  (= root (first path)))
 
 (defn- to-indexed
   "Makes sure the cursor-path is a []"

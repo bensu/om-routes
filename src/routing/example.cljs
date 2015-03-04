@@ -1,7 +1,7 @@
-(ns ^:figwheel-always routing.example
+(ns routing.example
     (:require-macros [cljs.core.async.macros :refer [go]])
     (:require [om.core :as om :include-macros true]
-              [cljs.core.async :as async :refer [put! chan alts!]]
+              [cljs.core.async :as async :refer [put! chan]]
               [routing.core :as routing]
               [om.dom :as dom :include-macros true]))
 
@@ -54,8 +54,6 @@
 
 (def cursor-path :view)
 
-;; route and handler-map should be merged
-
 (def route [[:mode "/" :type] (routing/make-handler url->state)])
 
 ;; API
@@ -77,7 +75,3 @@
     :shared {:tx-chan tx-pub-chan}
     :tx-listen (fn [tx-data root-cursor]
                  (put! tx-chan [tx-data root-cursor]))}))
-
-
-;; Plugin Secretary to Goog History
-
