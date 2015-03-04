@@ -14,7 +14,13 @@ state with an external source, it syncs it with the navbar's url.
 
 ## Example
 
-Create an `app-state` with a navigation component:
+Should cook up a better example. It should:
+
+1. Show how nav state functions as normal state for rest of components.
+2. Show how other state is orthogonal and not remembered.
+3. Show how both links and the navbar can be used to affect the state.
+4. Show that it is up to the developer to choose which states are
+   reachable from links/navbar or from direct manipulation via other events.
 
 
 ## Contributions

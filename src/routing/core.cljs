@@ -7,8 +7,6 @@
               [goog.history.EventType :as EventType])
     (:import goog.History))
 
-(enable-console-print!)
-
 (defn- go-to
   "Goes to the specified url"
   [url]
@@ -27,7 +25,9 @@
   [handler]
   (bidi/->IdentifiableHandler ::handler handler))
 
-(defn om-routes [data owner opts]
+(defn om-routes
+  "FIX"
+  [data owner opts]
   (reify
     om/IWillMount
     (will-mount [_]
