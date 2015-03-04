@@ -24,6 +24,9 @@
    (dom/button #js {:onClick (fn [_] (om/transact! data :count inc))}
                (:count data))))
 
+(defn nav-to [view-cursor mode]
+  (om/update! view-cursor [:view :mode] mode ::nav))
+
 (defn view-component [data owner]
   (om/component
    (dom/div nil
@@ -34,14 +37,11 @@
             (dom/h1 nil (name (get-in data [:view :mode])))
             (dom/h1 nil (get-in data [:view :type]))
             ;; The button is the from state to routes binding
-            (dom/button #js {:onClick
-                             (fn [_] (om/update! data [:view :mode] :list))}
+            (dom/button #js {:onClick (fn [_] (nav-to data :list))}
                         "List")
-            (dom/button #js {:onClick
-                             (fn [_] (om/update! data [:view :mode] :edit))}
+            (dom/button #js {:onClick (fn [_] (nav-to data :edit))}
                         "Edit")
-            (dom/button #js {:onClick
-                             (fn [_] (om/update! data [:view :mode] :view))}
+            (dom/button #js {:onClick (fn [_] (nav-to data :view))}
                         "View")
             ;; The links are the routes to state binding
             (dom/br nil)
@@ -63,8 +63,7 @@
 
 (def route [[:mode "/" :type] :handler])
 
-(def handler-map {:handler (fn [params]
-                             (url->state params))})
+(def handler-map {:handler url->state})
 ;; API
 
 (defn- go-to
@@ -99,23 +98,27 @@
       (let [cursor-path (to-indexed (:cursor-path opts))]
         (let [tx-chan (om/get-shared owner :tx-chan)
               txs (chan)]
-          (async/sub tx-chan :nav txs)
-          (om/set-state! owner :nav txs)
+          (async/sub tx-chan :txs txs)
+          (om/set-state! owner :txs txs)
           (go (loop []
-                (let [[{:keys [new-state]} _] (<! txs)]
-                  (println "ASF")
-                  #_(println (bidi/path-for :handler new-state))
-                  (go-to ((:state->url opts) (get-in new-state cursor-path))))
-                (recur)))
+                (let [[{:keys [new-state tag]} _] (<! txs)]
+                  (when (= ::nav tag)
+                    (println "state changed")
+                    (println new-state)
+                    (println (bidi/path-for :handler new-state))
+                    #_(go-to ((:state->url opts) (get-in new-state cursor-path))))
+                  (recur))))
           (let [h (History.)]
             (goog.events/listen
              h EventType/NAVIGATE
              (fn [url]
                (let [{:keys [handler route-params]}
                      (bidi/match-route route (.-token url))]
+                 (println (.-token url))
+                 (println route-params)
                  (om/transact! data
-                               #(assoc-in % cursor-path
-                                          ((handler-map handler) route-params))))))
+                               cursor-path
+                               (fn [_] ((handler-map handler) route-params))))))
             (doto h (.setEnabled true))))))
     om/IRender
     (render [_]
@@ -126,8 +129,7 @@
 
 (let [tx-chan (chan)
       tx-pub-chan
-      (async/pub tx-chan (fn [{:keys [path]}]
-                           (if (share-path? cursor-path path) :nav)))]
+      (async/pub tx-chan (fn [_] :txs))]
   (om/root
    (fn [data owner]
      (reify
