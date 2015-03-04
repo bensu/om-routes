@@ -22,7 +22,7 @@
                (:count data))))
 
 (defn nav-to [view-cursor mode]
-  (om/update! view-cursor [:view :mode] mode :routing/nav))
+  (om/update! view-cursor [:view :mode] mode :routing.core/nav))
 
 (defn view-component [data owner]
   (om/component
@@ -48,7 +48,13 @@
 
 ;; Things for the API
 
+(defn url->state [{:keys [mode type]}]
+  {:mode (keyword mode)
+   :type (js/parseInt type)})
+
 (def cursor-path :view)
+
+;; route and handler-map should be merged
 
 (def route [[:mode "/" :type] :handler])
 
@@ -67,6 +73,7 @@
          (om/build routing/om-routes data
                    {:opts {:view view-component
                            :route route
+                           :handler-map handler-map
                            :korks cursor-path}}))))
    app-state
    {:target (. js/document (getElementById "app"))

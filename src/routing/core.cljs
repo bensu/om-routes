@@ -24,7 +24,7 @@
        path = [:view :list]
        returns false"
   [root path]
-  (= cursor-path (first path)))
+  (= root (first path)))
 
 (defn- to-indexed
   "Makes sure the cursor-path is a []"
@@ -39,6 +39,7 @@
     om/IWillMount
     (will-mount [_]
       (let [korks (to-indexed (:korks opts))
+            handler-map (:handler-map opts)
             route (:route opts)]
         (let [tx-chan (om/get-shared owner :tx-chan)
               txs (chan)]
@@ -46,7 +47,9 @@
           (om/set-state! owner :txs txs)
           (go (loop []
                 (let [[{:keys [new-state tag]} _] (<! txs)]
+                  (println tag)
                   (when (= ::nav tag)
+                    (println new-state)
                     (let [params (get-in new-state korks)
                           url (apply bidi/path-for route :handler
                                      (reduce concat (seq params)))]
