@@ -1,6 +1,6 @@
 (ns routing.dev
     (:require
-     [routing.core]
+     [routing.example]
      [figwheel.client :as fw]))
 
 (fw/start {
