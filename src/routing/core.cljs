@@ -103,10 +103,10 @@
           (go (loop []
                 (let [[{:keys [new-state tag]} _] (<! txs)]
                   (when (= ::nav tag)
-                    (println "state changed")
-                    (println new-state)
-                    (println (bidi/path-for :handler new-state))
-                    #_(go-to ((:state->url opts) (get-in new-state cursor-path))))
+                    (let [params (get-in new-state cursor-path)
+                          url (apply bidi/path-for route :handler
+                                     (reduce concat (seq params)))]
+                      (go-to (str "#" url))))
                   (recur))))
           (let [h (History.)]
             (goog.events/listen
@@ -114,8 +114,6 @@
              (fn [url]
                (let [{:keys [handler route-params]}
                      (bidi/match-route route (.-token url))]
-                 (println (.-token url))
-                 (println route-params)
                  (om/transact! data
                                cursor-path
                                (fn [_] ((handler-map handler) route-params))))))
