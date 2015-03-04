@@ -34,12 +34,16 @@
     cursor-path
     [cursor-path]))
 
+(defn make-handler
+  "Takes a handler and adds a bidi tag to it"
+  [handler]
+  (bidi/->IdentifiableHandler ::handler handler))
+
 (defn om-routes [data owner opts]
   (reify
     om/IWillMount
     (will-mount [_]
       (let [korks (to-indexed (:korks opts))
-            handler-map (:handler-map opts)
             route (:route opts)]
         (let [tx-chan (om/get-shared owner :tx-chan)
               txs (chan)]
@@ -47,11 +51,9 @@
           (om/set-state! owner :txs txs)
           (go (loop []
                 (let [[{:keys [new-state tag]} _] (<! txs)]
-                  (println tag)
                   (when (= ::nav tag)
-                    (println new-state)
                     (let [params (get-in new-state korks)
-                          url (apply bidi/path-for route :handler
+                          url (apply bidi/path-for route ::handler
                                      (reduce concat (seq params)))]
                       (go-to (str "#" url))))
                   (recur))))
@@ -64,7 +66,7 @@
                  (if-not (nil? handler)
                    (om/update! data
                                korks 
-                               ((handler-map handler) route-params))))))
+                               (handler route-params))))))
             (doto h (.setEnabled true))))))
     om/IRender
     (render [_]

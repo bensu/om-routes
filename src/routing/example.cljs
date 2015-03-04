@@ -56,9 +56,7 @@
 
 ;; route and handler-map should be merged
 
-(def route [[:mode "/" :type] :handler])
-
-(def handler-map {:handler url->state})
+(def route [[:mode "/" :type] (routing/make-handler url->state)])
 
 ;; API
 
@@ -73,7 +71,6 @@
          (om/build routing/om-routes data
                    {:opts {:view view-component
                            :route route
-                           :handler-map handler-map
                            :korks cursor-path}}))))
    app-state
    {:target (. js/document (getElementById "app"))
