@@ -18,11 +18,12 @@
 (defn view-component [data owner]
   (om/component
    (dom/div nil
-            (dom/h1 nil (name (get-nav data)))
-            ;; The button is the from state to routes binding
+            (dom/h1 nil (case (get-nav data)
+                          :state "A button got me here"
+                          :link "A link got me here"
+                          "Who got me here?"))
             (dom/button #js {:onClick (fn [_] (nav-to data :state))}
                         "Button") 
-            ;; The links are the routes to state binding
             (dom/br nil)
             (dom/a #js {:href "#link"} "Link"))))
 
