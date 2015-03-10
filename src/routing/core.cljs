@@ -43,14 +43,14 @@
                     (let [params (get-in new-state korks)
                           url (apply bidi/path-for route ::handler
                                      (reduce concat (seq params)))]
-                      (go-to (str "#" url))))
+                      (go-to url)))
                   (recur))))
           (let [h (History.)]
             (goog.events/listen
              h EventType/NAVIGATE
              (fn [url]
                (let [{:keys [handler route-params]}
-                     (bidi/match-route route (.-token url))]
+                     (bidi/match-route route (str "#" (.-token url)))]
                  (if-not (nil? handler)
                    (om/update! data
                                korks 

@@ -7,45 +7,33 @@
 
 (enable-console-print!)
 
-(defonce app-state (atom {:nav {:color :red}
-                          :count 0}))
+(defonce app-state (atom {:nav {:method :state}}))
 
-(defn nav-to [view-cursor color]
-  (om/update! view-cursor [:nav :color] color :routing.core/nav))
+(defn nav-to [view-cursor method]
+  (om/update! view-cursor [:nav :method] method :routing.core/nav))
 
-(defn get-color [data]
-  (get-in data [:nav :color]))
-
-(defn edit-count [data owner]
-  (om/component
-   (dom/button #js {:onClick (fn [_] (om/transact! data :count inc))
-                    :style #js {"backgroundColor" (name (get-color data))}}
-               (:count data))))
+(defn get-nav [data]
+  (get-in data [:nav :method]))
 
 (defn view-component [data owner]
   (om/component
    (dom/div nil
-            (dom/div nil
-                     (om/build edit-count data))
-            (dom/h1 nil (name (get-color data)))
+            (dom/h1 nil (name (get-nav data)))
             ;; The button is the from state to routes binding
-            (dom/button #js {:onClick (fn [_] (nav-to data :red))}
-                        "Red")
-            (dom/button #js {:onClick (fn [_] (nav-to data :blue))}
-                        "Blue")
+            (dom/button #js {:onClick (fn [_] (nav-to data :state))}
+                        "Button") 
             ;; The links are the routes to state binding
             (dom/br nil)
-            (dom/a #js {:href "#red"} "Red")
-            (dom/a #js {:href "#blue"} "Blue"))))
+            (dom/a #js {:href "#link"} "Link"))))
 
 ;; Things for the API
 
-(defn url->state [{:keys [color]}]
-  {:color (keyword color)})
+(defn url->state [{:keys [method]}]
+  {:method (keyword method)})
 
 (def cursor-path :nav)
 
-(def route [["#" :color] (routing/make-handler url->state)])
+(def route [["#" :method] (routing/make-handler url->state)])
 
 (let [tx-chan (chan)
       tx-pub-chan
