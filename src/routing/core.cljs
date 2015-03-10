@@ -31,7 +31,7 @@
   (reify
     om/IWillMount
     (will-mount [_]
-      (let [korks (to-indexed (:korks opts))
+      (let [nav-path (to-indexed (:nav-path opts))
             route (:route opts)]
         (let [tx-chan (om/get-shared owner :tx-chan)
               txs (chan)]
@@ -40,7 +40,7 @@
           (go (loop []
                 (let [[{:keys [new-state tag]} _] (<! txs)]
                   (when (= ::nav tag)
-                    (let [params (get-in new-state korks)
+                    (let [params (get-in new-state nav-path)
                           url (apply bidi/path-for route ::handler
                                      (reduce concat (seq params)))]
                       (go-to url)))
@@ -52,9 +52,7 @@
                (let [{:keys [handler route-params]}
                      (bidi/match-route route (str "#" (.-token url)))]
                  (if-not (nil? handler)
-                   (om/update! data
-                               korks 
-                               (handler route-params))))))
+                   (om/update! data nav-path (handler route-params))))))
             (doto h (.setEnabled true))))))
     om/IRender
     (render [_]

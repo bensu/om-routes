@@ -7,13 +7,26 @@
 
 (enable-console-print!)
 
+;; Main State
+
 (defonce app-state (atom {:nav {:method :state}}))
 
-(defn nav-to [view-cursor method]
-  (om/update! view-cursor [:nav :method] method :routing.core/nav))
+;; Navigation API
+
+(def nav-path :nav)
 
 (defn get-nav [data]
-  (get-in data [:nav :method]))
+  (get-in data [nav-path :method]))
+
+(defn url->state [{:keys [method]}]
+  {:method (keyword method)})
+
+(def route [["#" :method] (routing/make-handler url->state)])
+
+(defn nav-to [view-cursor method]
+  (om/update! view-cursor [nav-path :method] method :routing.core/nav))
+
+;; View
 
 (defn view-component [data owner]
   (om/component
@@ -22,19 +35,11 @@
                           :state "A button got me here"
                           :link "A link got me here"
                           "Who got me here?"))
-            (dom/button #js {:onClick (fn [_] (nav-to data :state))}
-                        "Button") 
+            (dom/button #js {:onClick (fn [_] (nav-to data :state))} "Button") 
             (dom/br nil)
             (dom/a #js {:href "#link"} "Link"))))
 
-;; Things for the API
-
-(defn url->state [{:keys [method]}]
-  {:method (keyword method)})
-
-(def cursor-path :nav)
-
-(def route [["#" :method] (routing/make-handler url->state)])
+;; Main Component
 
 (let [tx-chan (chan)
       tx-pub-chan
@@ -47,7 +52,7 @@
          (om/build routing/om-routes data
                    {:opts {:view view-component
                            :route route
-                           :korks cursor-path}}))))
+                           :nav-path nav-path}}))))
    app-state
    {:target (. js/document (getElementById "app"))
     :shared {:tx-chan tx-pub-chan}
