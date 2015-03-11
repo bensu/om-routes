@@ -2,6 +2,8 @@
 
 [![Clojars Project](http://clojars.org/om-routes/latest-version.svg)](http://clojars.org/om-routes)
 
+    (:require [routing.core :as routing])
+
 Users expect to use the browser's navigation tools
 to work everywhere, even inside SPAs. This library binds the browser's
 url to some cursor in your app-state so that you can model your
@@ -21,8 +23,21 @@ includes Om, core.async, and
 development:
 
     lein new figwheel routes-example -- --om
+    cd routes-example
 
-We start by setting the structure of the state. Everything under
+We start by editing `src/routes-example/core.cljs` and adding some
+requirements:
+
+```clj
+(ns routing.example
+    (:require-macros [cljs.core.async.macros :refer [go]])
+    (:require [om.core :as om :include-macros true]
+              [cljs.core.async :as async :refer [put! chan]]
+              [routing.core :as routing]
+              [om.dom :as dom :include-macros true]))
+```
+
+Then we can set the structure of the state. Everything under
 `:nav` will be tracked:
 
 ```clj
