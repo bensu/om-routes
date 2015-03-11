@@ -56,4 +56,4 @@
             (doto h (.setEnabled true))))))
     om/IRender
     (render [_]
-      (om/build (:view opts) data))))
+      (om/build (:view-component opts) data))))

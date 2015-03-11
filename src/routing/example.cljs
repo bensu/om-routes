@@ -18,13 +18,13 @@
 (defn get-nav [data]
   (get-in data [nav-path :method]))
 
+(defn nav-to [view-cursor method]
+  (om/update! view-cursor [nav-path :method] method :routing.core/nav))
+
 (defn url->state [{:keys [method]}]
   {:method (keyword method)})
 
 (def route [["#" :method] (routing/make-handler url->state)])
-
-(defn nav-to [view-cursor method]
-  (om/update! view-cursor [nav-path :method] method :routing.core/nav))
 
 ;; View
 
@@ -50,7 +50,7 @@
        om/IRender
        (render [_]
          (om/build routing/om-routes data
-                   {:opts {:view view-component
+                   {:opts {:view-component view-component
                            :route route
                            :nav-path nav-path}}))))
    app-state
