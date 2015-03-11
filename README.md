@@ -42,7 +42,7 @@ Now we define how the nave state should be accessed and modified:
 ```
 
 Note that we are tagging every `update!` to the navigation state with
-a namespace qualified keyword. Now we define a one-to-one mapping
+a namespace qualified keyword, `:routing.core/nav`. Now we define a one-to-one mapping
 between the navigation state and a url, producing a [Bidi](https://github.com/juxt/bidi) handler,
 `route`:
 
