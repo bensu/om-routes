@@ -1,6 +1,6 @@
 # om-routes
 
-[![Clojars Project](http://clojars.org/om-syncing/latest-version.svg)](http://clojars.org/om-syncing)
+[![Clojars Project](http://clojars.org/om-routes/latest-version.svg)](http://clojars.org/om-routes)
 
 Users expect to use the browser's navigation tools
 to work even inside SPAs. This library binds the browser's
