@@ -57,9 +57,12 @@ Now we define how the nave state should be accessed and modified:
 ```
 
 Note that we are tagging every `update!` to the navigation state with
-a namespace qualified keyword, `:routing.core/nav`. Now we define a one-to-one mapping
+a namespace qualified keyword, `:routing.core/nav`. This definitions
+are not strictly necessary for `om-routes` but they are good
+programming practice. Now we define a one-to-one mapping
 between the navigation state and a url, producing a [Bidi](https://github.com/juxt/bidi) handler,
-`route`:
+`route`. This will tell `om-routes` how to transform a url into a
+navigation map and backwards:
 
 ```clj
 (defn url->state [{:keys [last-click]}]
@@ -91,8 +94,8 @@ Now let's implement the view:
 As you can see, the link also uses `#` for its `href` property.
 
 Then we set up a pub-channel for all the transactions. `om-routes`
-will listen to those with the `:routing.core/nav` tag. Finally, we
-wrap the view with `om-routes` by passing `view-component`, `route`,
+will listen to those tagged with `:routing.core/nav`. Finally, we
+wrap the `view-component` with `om-routes` by passing it along `route`,
 and `nav-path` as `opts`:
 
 ```clj
