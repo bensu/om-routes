@@ -9,22 +9,22 @@
 
 ;; Main State
 
-(defonce app-state (atom {:nav {:method :state}}))
+(defonce app-state (atom {:nav {:method :button}}))
 
 ;; Navigation API
 
 (def nav-path :nav)
 
 (defn get-nav [data]
-  (get-in data [nav-path :method]))
+  (get-in data [nav-path :last-click]))
 
 (defn nav-to [view-cursor method]
-  (om/update! view-cursor [nav-path :method] method :routing.core/nav))
+  (om/update! view-cursor [nav-path :last-click] method :routing.core/nav))
 
-(defn url->state [{:keys [method]}]
-  {:method (keyword method)})
+(defn url->state [{:keys [last-click]}]
+  {:last-click (keyword last-click)})
 
-(def route [["#" :method] (routing/make-handler url->state)])
+(def route [["#" :last-click] (routing/make-handler url->state)])
 
 ;; View
 
@@ -32,10 +32,10 @@
   (om/component
    (dom/div nil
             (dom/h1 nil (case (get-nav data)
-                          :state "A button got me here"
+                          :button "A button got me here"
                           :link "A link got me here"
                           "Who got me here?"))
-            (dom/button #js {:onClick (fn [_] (nav-to data :state))} "Button") 
+            (dom/button #js {:onClick (fn [_] (nav-to data :button))} "Button") 
             (dom/br nil)
             (dom/a #js {:href "#link"} "Link"))))
 

@@ -3,54 +3,60 @@
 [![Clojars Project](http://clojars.org/om-routes/latest-version.svg)](http://clojars.org/om-routes)
 
 Users expect to use the browser's navigation tools
-to work even inside SPAs. This library binds the browser's
+to work everywhere, even inside SPAs. This library binds the browser's
 url to some cursor in your app-state so that you can model your
 navigation however you like and it will automatically make it work
 with the browser's navigation tools.
 
-It has the same structure than
-[om-sync](http://github.com/swannodette/om-sync). Instead of syncing a cursor's
-state with an external source, it syncs it with the navbar's url.
+It follows [om-sync](http://github.com/swannodette/om-sync)'s
+structure. Instead of syncing a cursor's state with an external
+source, it syncs it with the navbar's url.
 
 ## Minimal Example
 
-We are going to code a simple widget that tracks one piece of state:
-if the last click was done on a button or on a link. First we start by
-setting the state:
+We are going to code a simple widget that tracks one thing: if the
+last click was made by a button or a link. We can start from a template that
+includes Om, core.async, and
+[Figwheel](https://github.com/bhauman/lein-figwheel) for easier
+development:
+
+    lein new figwheel routes-example -- --om
+
+We start by setting the structure of the state. Everything under
+`:nav` will be tracked:
 
 ```clj
-(defonce app-state (atom {:nav {:method :state}}))
+(defonce app-state (atom {:nav {:last-click :button}}))
 ```
 
-We are using `defonce` in case we are live code reloading ([Figwheel](https://github.com/bhauman/lein-figwheel))
-
-Now we define how that state should be accessed and modified:
+Now we define how the nave state should be accessed and modified:
 
 ```clj
 (def nav-path :nav)
 
 (defn get-nav [data]
-  (get-in data [nav-path :method]))
+  (get-in data [nav-path :last-click]))
 
 (defn nav-to [view-cursor method]
-  (om/update! view-cursor [nav-path :method] method :routing.core/nav))
+  (om/update! view-cursor [nav-path :last-click] method :routing.core/nav))
 ```
 
-Note that we are tagging every `update!` to the navigation state with a namespace
-qualified keyword. Now we define a one-to-one mapping between the
-navigation state and a url, producing a [Bidi] handler, `route`:
+Note that we are tagging every `update!` to the navigation state with
+a namespace qualified keyword. Now we define a one-to-one mapping
+between the navigation state and a url, producing a [Bidi](https://github.com/juxt/bidi) handler,
+`route`:
 
 ```clj
-(defn url->state [{:keys [method]}]
-  {:method (keyword method)})
+(defn url->state [{:keys [last-click]}]
+  {:last-click (keyword last-click)})
 
 (def route [["#" :method] (routing/make-handler url->state)])
 ```
 
-Note that the `route` matches links that begin with `#` since we want
+Note that `route` matches links that begin with `#` since we want
 to specify
-[Fragements](http://en.wikipedia.org/wiki/Fragment_identifier) of our
-website and not other external resources. All routes should start with `#`.
+[Fragments](http://en.wikipedia.org/wiki/Fragment_identifier) of our
+website and not external resources. All routes should start with `#`.
 
 Now let's implement the view:
 
@@ -59,10 +65,10 @@ Now let's implement the view:
   (om/component
    (dom/div nil
             (dom/h1 nil (case (get-nav data)
-                          :state "A button got me here"
+                          :button "A button got me here"
                           :link "A link got me here"
                           "Who got me here?"))
-            (dom/button #js {:onClick (fn [_] (nav-to data :state))} "Button") 
+            (dom/button #js {:onClick (fn [_] (nav-to data :button))} "Button") 
             (dom/br nil)
             (dom/a #js {:href "#link"} "Link"))))
 ```
