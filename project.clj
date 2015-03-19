@@ -1,16 +1,22 @@
-(defproject routing "0.1.0-SNAPSHOT"
-  :description "FIXME: write this!"
-  :url "http://example.com/FIXME"
+(defproject om-routes "0.1.0-SNAPSHOT"
+  :description "Sync Om state with Navigation Bar"
+  :url "http://github.com/bensu/om-routes"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 
   :dependencies [[org.clojure/clojure "1.6.0"]
+<<<<<<< HEAD
                  [org.clojure/clojurescript "0.0-2850"]
                  [figwheel "0.2.5-SNAPSHOT"]
                  [org.clojure/core.async "0.1.346.0-17112a-alpha"]
                  [sablono "0.3.4"]
+=======
+                 [org.clojure/clojurescript "0.0-3126" :scope "provided"]
+                 [org.clojure/core.async "0.1.346.0-17112a-alpha"
+                  :scope "provided"]
+>>>>>>> c9e92b4... Preparing project.clj for publication
                  [bidi "1.18.7"]
-                 [org.omcljs/om "0.8.8"]]
+                 [org.omcljs/om "0.8.8" :scope "provided"]]
 
   :plugins [[lein-cljsbuild "1.0.4"]
             [lein-figwheel "0.2.5-SNAPSHOT"]]
