@@ -4,14 +4,8 @@ pom.xml
 *jar
 /lib/
 /classes/
-/examples/track_button/out
 /out/
 /target/
-<<<<<<< HEAD
-/examples/track_button/out
-=======
-/examples/track_button/out/
->>>>>>> 5563b8f... Updated gitignore
 .lein-deps-sum
 .lein-repl-history
 .lein-plugins/
