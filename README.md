@@ -1,6 +1,9 @@
 # om-routes
 
+NOT READY FOR USE
+<!--
 [![Clojars Project](http://clojars.org/om-routes/latest-version.svg)](http://clojars.org/om-routes)
+-->
 
     (:require [routing.core :as routing])
 
