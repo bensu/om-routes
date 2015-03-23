@@ -55,8 +55,8 @@ requirements:
               [om.dom :as dom :include-macros true]))
 ```
 
-Then we can set the structure of the state. Everything under
-`:nav` will be tracked:
+Next we can set the structure of
+the state. Everything under `:nav` will be tracked:
 
 ```clj
 (defonce app-state (atom {:nav {:last-click :button}}))
