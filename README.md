@@ -47,7 +47,7 @@ Then by editing `src/routes-example/core.cljs` and adding some
 requirements:
 
 ```clj
-(ns routing.example
+(ns routes-example.core
     (:require-macros [cljs.core.async.macros :refer [go]])
     (:require [om.core :as om :include-macros true]
               [cljs.core.async :as async :refer [put! chan]]
@@ -118,14 +118,13 @@ and `nav-path` as `opts`:
 
 ```clj
 (let [tx-chan (chan)
-      tx-pub-chan
-      (async/pub tx-chan (fn [_] :txs))]
+      tx-pub-chan (async/pub tx-chan (fn [_] :txs))]
   (om/root
    (fn [data owner]
      (reify
        om/IRender
        (render [_]
-         (om/build routing/om-routes data
+         (om/build routes/om-routes data
                    {:opts {:view-component view-component
                            :route route
                            :nav-path nav-path}}))))
