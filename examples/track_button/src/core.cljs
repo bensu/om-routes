@@ -9,7 +9,7 @@
 
 ;; Main State
 
-(defonce app-state (atom {:nav {:method :button}}))
+(defonce app-state (atom {:nav {:last-click nil}}))
 
 ;; Navigation API
 

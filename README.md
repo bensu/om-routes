@@ -32,7 +32,6 @@ development:
 We start by adding `om-routes` to `project.clj`:
 
 ```clj
-
 :dependencies [[org.clojure/clojure "1.6.0"]
                [org.clojure/clojurescript "0.0-3126"]
                [figwheel "0.2.5"]
@@ -40,7 +39,6 @@ We start by adding `om-routes` to `project.clj`:
                [sablono "0.3.4"]
                [org.omcljs/om "0.8.8"]
                [om-routes "0.1.1-SNAPSHOT"]] ;; <- Add this
-
 ```
 
 Then by editing `src/routes-example/core.cljs` and adding some
@@ -59,7 +57,7 @@ Next we can set the structure of
 the state. Everything under `:nav` will be tracked:
 
 ```clj
-(defonce app-state (atom {:nav {:last-click :button}}))
+(defonce app-state (atom {:nav {:last-click nil}}))
 ```
 
 Now we define how the nave state should be accessed and modified:
@@ -86,7 +84,7 @@ navigation map and backwards:
 (defn url->state [{:keys [last-click]}]
   {:last-click (keyword last-click)})
 
-(def route [["#" :method] (routes/make-handler url->state)])
+(def route [["#" :last-click] (routes/make-handler url->state)])
 ```
 
 Note that `route` matches links that begin with `#` since we want
