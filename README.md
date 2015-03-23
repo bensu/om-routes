@@ -51,7 +51,7 @@ requirements:
     (:require-macros [cljs.core.async.macros :refer [go]])
     (:require [om.core :as om :include-macros true]
               [cljs.core.async :as async :refer [put! chan]]
-              [routing.core :as routing]
+              [om-routes.core :as routes]
               [om.dom :as dom :include-macros true]))
 ```
 
@@ -71,11 +71,11 @@ Now we define how the nave state should be accessed and modified:
   (get-in data [nav-path :last-click]))
 
 (defn nav-to [view-cursor method]
-  (om/update! view-cursor [nav-path :last-click] method :routing.core/nav))
+  (om/update! view-cursor [nav-path :last-click] method :om-routes.core/nav))
 ```
 
 Note that we are tagging every `update!` to the navigation state with
-a namespace qualified keyword, `:routing.core/nav`. This definitions
+a namespace qualified keyword, `:om-routes.core/nav`. This definitions
 are not strictly necessary for `om-routes` but they are good
 programming practice. Now we define a one-to-one mapping
 between the navigation state and a url, producing a [Bidi](https://github.com/juxt/bidi) handler,
@@ -86,7 +86,7 @@ navigation map and backwards:
 (defn url->state [{:keys [last-click]}]
   {:last-click (keyword last-click)})
 
-(def route [["#" :method] (routing/make-handler url->state)])
+(def route [["#" :method] (routes/make-handler url->state)])
 ```
 
 Note that `route` matches links that begin with `#` since we want

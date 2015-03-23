@@ -2,7 +2,7 @@
     (:require-macros [cljs.core.async.macros :refer [go]])
     (:require [om.core :as om :include-macros true]
               [cljs.core.async :as async :refer [put! chan]]
-              [om-routes.core :as routing]
+              [om-routes.core :as routes]
               [om.dom :as dom :include-macros true]))
 
 (enable-console-print!)
@@ -19,12 +19,12 @@
   (get-in data [nav-path :last-click]))
 
 (defn nav-to [view-cursor method]
-  (om/update! view-cursor [nav-path :last-click] method :routing.core/nav))
+  (om/update! view-cursor [nav-path :last-click] method :om-routes.core/nav))
 
 (defn url->state [{:keys [last-click]}]
   {:last-click (keyword last-click)})
 
-(def route [["#" :last-click] (routing/make-handler url->state)])
+(def route [["#" :last-click] (routes/make-handler url->state)])
 
 ;; View
 
@@ -49,7 +49,7 @@
      (reify
        om/IRender
        (render [_]
-         (om/build routing/om-routes data
+         (om/build routes/om-routes data
                    {:opts {:view-component view-component
                            :route route
                            :nav-path nav-path}}))))
