@@ -1,4 +1,4 @@
-(ns routing.core
+(ns om-routes.core 
     (:require-macros [cljs.core.async.macros :refer [go]])
     (:require [om.core :as om]
               [cljs.core.async :as async :refer [put! chan]]

@@ -29,7 +29,21 @@ development:
     lein new figwheel routes-example -- --om
     cd routes-example
 
-We start by editing `src/routes-example/core.cljs` and adding some
+We start by adding `om-routes` to `project.clj`:
+
+```clj
+
+:dependencies [[org.clojure/clojure "1.6.0"]
+               [org.clojure/clojurescript "0.0-3126"]
+               [figwheel "0.2.5"]
+               [org.clojure/core.async "0.1.346.0-17112a-alpha"]
+               [sablono "0.3.4"]
+               [org.omcljs/om "0.8.8"]
+               [om-routes "0.1.1-SNAPSHOT"]] ;; <- Add this
+
+```
+
+Then by editing `src/routes-example/core.cljs` and adding some
 requirements:
 
 ```clj

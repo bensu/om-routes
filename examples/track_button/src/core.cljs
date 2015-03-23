@@ -2,7 +2,7 @@
     (:require-macros [cljs.core.async.macros :refer [go]])
     (:require [om.core :as om :include-macros true]
               [cljs.core.async :as async :refer [put! chan]]
-              [routing.core :as routing]
+              [om-routes.core :as routing]
               [om.dom :as dom :include-macros true]))
 
 (enable-console-print!)
