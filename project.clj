@@ -17,7 +17,7 @@
   :clean-targets ^{:protect false} ["examples/track_button/out"]
   
   :cljsbuild {
-              :builds [{:id "dev"
+              :builds [{:id "track-button"
                         :source-paths ["src" "examples/track_button/src"]
                         :compiler {:output-to "examples/track_button/out/track_button.js"
                                    :output-dir "examples/track_button/out"
