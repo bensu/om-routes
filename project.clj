@@ -1,4 +1,4 @@
-(defproject om-routes "0.1.0"
+(defproject om-routes "0.1.0-SNAPSHOT"
   :description "Sync Om state with Navigation Bar"
   :url "http://github.com/bensu/om-routes"
   :license {:name "Eclipse Public License"
