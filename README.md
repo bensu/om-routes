@@ -1,6 +1,7 @@
 # om-routes
 
-NOT READY FOR USE
+## Installing
+
 <!--
 [![Clojars Project](http://clojars.org/om-routes/latest-version.svg)](http://clojars.org/om-routes)
 -->
