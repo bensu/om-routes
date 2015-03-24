@@ -8,5 +8,6 @@ examples/track_button/out/
 .lein-deps-sum
 .lein-repl-history
 .lein-plugins/
+.lein-env
 .repl
 .nrepl-port

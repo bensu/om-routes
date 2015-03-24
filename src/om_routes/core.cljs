@@ -31,7 +31,6 @@
   (reify
     om/IWillMount
     (will-mount [_]
-      (println "!")
       (let [nav-path (to-indexed (:nav-path opts))
             route (:route opts)
             tx-chan (om/get-shared owner :tx-chan)
@@ -41,8 +40,6 @@
         (go (loop []
               (let [[{:keys [new-state tag]} _] (<! txs)]
                 (when (= ::nav tag)
-                  (println new-state tag)
-                  (println (get-in new-state nav-path))
                   (let [params (get-in new-state nav-path)
                         url (apply bidi/path-for route ::handler
                                    (reduce concat (seq params)))]
@@ -52,13 +49,10 @@
           (goog.events/listen
            h EventType/NAVIGATE
            (fn [url]
-             (try
-               (println url)
-               (let [{:keys [handler route-params]}
-                     (bidi/match-route route (str "#" (.-token url)))]
-                 (if-not (nil? handler)
-                   (om/update! data nav-path (handler route-params))))
-               (catch js/Error nil))))
+             (let [{:keys [handler route-params]}
+                   (bidi/match-route route (str "#" (.-token url)))]
+               (if-not (nil? handler)
+                 (om/update! data nav-path (handler route-params))))))
           (doto h (.setEnabled true)))))
     om/IRender
     (render [_]
