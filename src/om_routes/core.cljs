@@ -31,29 +31,35 @@
   (reify
     om/IWillMount
     (will-mount [_]
+      (println "!")
       (let [nav-path (to-indexed (:nav-path opts))
-            route (:route opts)]
-        (let [tx-chan (om/get-shared owner :tx-chan)
-              txs (chan)]
-          (async/sub tx-chan :txs txs)
-          (om/set-state! owner :txs txs)
-          (go (loop []
-                (let [[{:keys [new-state tag]} _] (<! txs)]
-                  (when (= ::nav tag)
-                    (let [params (get-in new-state nav-path)
-                          url (apply bidi/path-for route ::handler
-                                     (reduce concat (seq params)))]
-                      (go-to url)))
-                  (recur))))
-          (let [h (History.)]
-            (goog.events/listen
-             h EventType/NAVIGATE
-             (fn [url]
+            route (:route opts)
+            tx-chan (om/get-shared owner :tx-chan)
+            txs (chan)]
+        (async/sub tx-chan :txs txs)
+        (om/set-state! owner :txs txs)
+        (go (loop []
+              (let [[{:keys [new-state tag]} _] (<! txs)]
+                (when (= ::nav tag)
+                  (println new-state tag)
+                  (println (get-in new-state nav-path))
+                  (let [params (get-in new-state nav-path)
+                        url (apply bidi/path-for route ::handler
+                                   (reduce concat (seq params)))]
+                    (go-to url)))
+                (recur))))
+        (let [h (History.)]
+          (goog.events/listen
+           h EventType/NAVIGATE
+           (fn [url]
+             (try
+               (println url)
                (let [{:keys [handler route-params]}
                      (bidi/match-route route (str "#" (.-token url)))]
                  (if-not (nil? handler)
-                   (om/update! data nav-path (handler route-params))))))
-            (doto h (.setEnabled true))))))
+                   (om/update! data nav-path (handler route-params))))
+               (catch js/Error nil))))
+          (doto h (.setEnabled true)))))
     om/IRender
     (render [_]
       (om/build (:view-component opts) data))))

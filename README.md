@@ -6,7 +6,7 @@
 [![Clojars Project](http://clojars.org/om-routes/latest-version.svg)](http://clojars.org/om-routes)
 -->
 
-    (:require [routing.core :as routing])
+    (:require [om-routes.core :as routes])
 
 Users expect to use the browser's navigation tools
 to work everywhere, even inside SPAs. This library binds the browser's
@@ -47,10 +47,10 @@ requirements:
 ```clj
 (ns routes-example.core
     (:require-macros [cljs.core.async.macros :refer [go]])
-    (:require [om.core :as om :include-macros true]
-              [cljs.core.async :as async :refer [put! chan]]
-              [om-routes.core :as routes]
-              [om.dom :as dom :include-macros true]))
+    (:require [cljs.core.async :as async :refer [put! chan]]
+        	  [om.core :as om :include-macros true]
+              [om.dom :as dom :include-macros true]
+              [om-routes.core :as routes]))
 ```
 
 Next we can set the structure of
@@ -110,7 +110,7 @@ Now let's implement the view:
 As you can see, the link also uses `#` for its `href` property.
 
 Then we set up a pub-channel for all the transactions. `om-routes`
-will listen to those tagged with `:routing.core/nav`. Finally, we
+will listen to those tagged with `:om-routes.core/nav`. Finally, we
 wrap the `view-component` with `om-routes` by passing it along `route`,
 and `nav-path` as `opts`:
 
