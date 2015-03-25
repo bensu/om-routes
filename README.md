@@ -2,6 +2,8 @@
 
 ## Installing
 
+Not Ready for Use
+
 <!--
 [![Clojars Project](http://clojars.org/om-routes/latest-version.svg)](http://clojars.org/om-routes)
 -->
