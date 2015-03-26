@@ -9,7 +9,7 @@
 
 ;; Main State
 
-(defonce app-state (atom {:nav {:mode :up
+(defonce app-state (atom {:nav {:sort :ascending 
                                 :index-1 0
                                 :index-2 0}}))
 
@@ -20,26 +20,51 @@
 (defn nav-to [view-cursor nav-map]
   (om/update! view-cursor nav-map :om-routes.core/nav))
 
-(defn url->state [{:keys [mode index-1 index-2]}]
-  {:mode (keyword mode)
+(defn url->state [{:keys [sort index-1 index-2]}]
+  {:sort (keyword sort)
    :index-1 (js/parseInt index-1)
    :index-2 (js/parseInt index-2)})
 
-(def route [["#" :mode "/" :index-1 "/" :index-2]
+(def route [["#" :sort "/" :index-1 "/" :index-2]
             (routes/make-handler url->state)])
 ;; View
 
 (defn view-component [data owner]
   (om/component
    (dom/div nil
-            (dom/h1 nil (case (get-in data [nav-path] :mode) 
-                          :up "up" 
-                          :down "down" 
-                          "upwards?"))
-            (dom/button #js {:onClick (fn [_] (om/transact! data [nav-path :index-1] inc :om-routes.core/nav))}
-                        (get-in data [nav-path :index-1])) 
-            (dom/button #js {:onClick (fn [_] (om/transact! data [nav-path :index-2] inc :om-routes.core/nav))}
-                        (get-in data [nav-path :index-2])))))
+            (dom/h3 nil "Sort by:")
+            (dom/button #js {:onClick
+                             (fn [_]
+                               (om/transact! data [nav-path :sort]
+                                             #(if (= % :ascending)
+                                                :descending
+                                                :ascending)
+                                             :om-routes.core/nav))}
+                        (if (= :ascending (get-in data [nav-path :sort]))
+                          "descending"
+                          "ascending"))  
+            (dom/br nil) 
+            (dom/br nil) 
+            (dom/button
+             #js {:onClick
+                  (fn [_]
+                    (om/transact! data [nav-path :index-1]
+                                  inc :om-routes.core/nav))}
+             (get-in data [nav-path :index-1])) 
+            (dom/button
+             #js {:onClick
+                  (fn [_]
+                    (om/transact! data [nav-path :index-2]
+                                  inc :om-routes.core/nav))}
+                        (get-in data [nav-path :index-2]))
+            (apply dom/p nil
+                   (let [xs (clojure.string/join
+                             " "
+                             (sort [(get-in data [nav-path :index-1])
+                                    (get-in data [nav-path :index-2])]))]
+                     (if (= :ascending (get-in data [nav-path :sort]))
+                       xs
+                       (reverse xs)))))))
 
 ;; Main Component
 

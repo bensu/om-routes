@@ -49,9 +49,9 @@
                 (print-log "Got tag:" tag)
                 (when (= ::nav tag)
                   (let [params (get-in new-state nav-path)
+                        _ (print-log "Got state:" params)
                         url (apply bidi/path-for route ::handler
                                    (reduce concat (seq params)))]
-                    (print-log "Got state:" params)
                     (print-log "with url:" url)
                     (go-to url)))
                 (recur))))
