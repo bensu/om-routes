@@ -34,12 +34,12 @@
                                    :source-map true
                                    :source-map-timestamp true
                                    :cache-analysis true}}
-                       {:id "integers"
-                        :source-paths ["src" "examples/integers/src"]
-                        :compiler {:output-to "examples/integers/out/integers.js"
-                                   :output-dir "examples/integers/out"
+                       {:id "sorting"
+                        :source-paths ["src" "examples/sorting/src"]
+                        :compiler {:output-to "examples/sorting/out/sorting.js"
+                                   :output-dir "examples/sorting/out"
                                    :optimizations :none
-                                   :main examples.integers.core
+                                   :main examples.sorting.core
                                    :asset-path "out"
                                    :source-map true
                                    :source-map-timestamp true

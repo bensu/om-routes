@@ -1,4 +1,4 @@
-(ns examples.integers.core
+(ns examples.sorting.core
     (:require-macros [cljs.core.async.macros :refer [go]])
     (:require [om.core :as om :include-macros true]
               [cljs.core.async :as async :refer [put! chan]]
@@ -42,21 +42,19 @@
                                              :om-routes.core/nav))}
                         (if (= :ascending (get-in data [nav-path :sort]))
                           "descending"
-                          "ascending"))  
+                          "ascending"))
             (dom/br nil) 
             (dom/br nil) 
             (dom/button
-             #js {:onClick
-                  (fn [_]
-                    (om/transact! data [nav-path :index-1]
-                                  inc :om-routes.core/nav))}
+             #js {:onClick (fn [_]
+                             (om/transact! data [nav-path :index-1]
+                                           inc :om-routes.core/nav))}
              (get-in data [nav-path :index-1])) 
             (dom/button
-             #js {:onClick
-                  (fn [_]
-                    (om/transact! data [nav-path :index-2]
-                                  inc :om-routes.core/nav))}
-                        (get-in data [nav-path :index-2]))
+             #js {:onClick (fn [_]
+                             (om/transact! data [nav-path :index-2]
+                                           inc :om-routes.core/nav))}
+             (get-in data [nav-path :index-2]))
             (apply dom/p nil
                    (let [xs (clojure.string/join
                              " "
