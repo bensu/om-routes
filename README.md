@@ -127,6 +127,7 @@ and `nav-path` as `opts`:
          (om/build routes/om-routes data
                    {:opts {:view-component view-component
                            :route route
+                           :debug true
                            :nav-path nav-path}}))))
    app-state
    {:target (. js/document (getElementById "app"))
@@ -134,6 +135,9 @@ and `nav-path` as `opts`:
     :tx-listen (fn [tx-data root-cursor]
                  (put! tx-chan [tx-data root-cursor]))}))
 ```
+
+Notice adding the `:debug` option, which normally defaults to
+`false`.
 
 FIX: Add GIF.
 
