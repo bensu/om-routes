@@ -25,6 +25,12 @@
   [handler]
   (bidi/->IdentifiableHandler ::handler handler))
 
+(def debug-on? (atom false))
+
+(defn print-log [& args]
+  (if @debug-on? 
+    (apply println args)))
+
 (defn om-routes
   "FIX"
   [data owner opts]
@@ -35,22 +41,31 @@
             route (:route opts)
             tx-chan (om/get-shared owner :tx-chan)
             txs (chan)]
+        (if (:debug opts) (reset! debug-on? true))
         (async/sub tx-chan :txs txs)
         (om/set-state! owner :txs txs)
         (go (loop []
               (let [[{:keys [new-state tag]} _] (<! txs)]
+                (print-log "Got tag:" tag)
                 (when (= ::nav tag)
                   (let [params (get-in new-state nav-path)
                         url (apply bidi/path-for route ::handler
                                    (reduce concat (seq params)))]
+                    (print-log "Got state:" params)
+                    (print-log "with url:" url)
                     (go-to url)))
                 (recur))))
         (let [h (History.)]
           (goog.events/listen
            h EventType/NAVIGATE
            (fn [url]
+             (print-log "Got url:" (.-token url))
              (let [{:keys [handler route-params]}
                    (bidi/match-route route (str "#" (.-token url)))]
+               (print-log "that matched" (if (nil? handler)
+                                           "no handlers"
+                                           "a handler"))
+               (print-log "with params:" route-params)
                (if-not (nil? handler)
                  (om/update! data nav-path (handler route-params))))))
           (doto h (.setEnabled true)))))

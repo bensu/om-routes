@@ -4,7 +4,7 @@ pom.xml
 /classes/
 /out/
 /target/
-examples/track_button/out/
+examples/*/out/
 .lein-deps-sum
 .lein-repl-history
 .lein-plugins/
