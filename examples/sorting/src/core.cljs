@@ -67,8 +67,7 @@
 ;; Main Component
 
 (let [tx-chan (chan)
-      tx-pub-chan
-      (async/pub tx-chan (fn [_] :txs))]
+      tx-pub-chan (async/pub tx-chan (fn [_] :txs))]
   (om/root
    (fn [data owner]
      (reify

@@ -10,6 +10,8 @@ Not Ready for Use
 
     (:require [om-routes.core :as routes])
 
+## Description
+
 Users expect to use the browser's navigation tools
 to work everywhere, even inside SPAs. This library binds the browser's
 url to some cursor in your app-state so that you can model your
@@ -19,6 +21,35 @@ with the browser's navigation tools.
 It follows [om-sync](http://github.com/swannodette/om-sync)'s
 structure. Instead of syncing a cursor's state with an external
 source, it syncs it with the navbar's url.
+
+It amounts to very little code and is probably not *exactly* what you
+need, yet I find it a useful pattern and worth considering.
+
+```clj
+
+(defonce app-state (atom {:nav {:last-click nil}}))
+
+(def route [["#" :last-click]
+            (routes/make-handler #(update-in % [:last-click] keyword))])
+
+(let [tx-chan (chan)
+      tx-pub-chan (async/pub tx-chan (fn [_] :txs))]
+  (om/root
+   (fn [data owner]
+     (reify
+       om/IRender
+       (render [_]
+         (om/build routes/om-routes data
+                   {:opts {:view-component view-component
+                           :route route
+                           :debug true
+                           :nav-path nav-path}}))))
+   app-state
+   {:target (. js/document (getElementById "app"))
+    :shared {:tx-chan tx-pub-chan}
+    :tx-listen (fn [tx-data root-cursor]
+                 (put! tx-chan [tx-data root-cursor]))}))
+```
 
 ## Minimal Example
 
