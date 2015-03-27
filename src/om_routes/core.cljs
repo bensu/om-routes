@@ -32,7 +32,22 @@
     (apply println args)))
 
 (defn om-routes
-  "FIX"
+  "Creates a component that tracks a part of the state and syncs it
+  with the navbar to support the back, forward, and refres buttons.
+  In order to function you must provide a subscribeable core.async
+  channel that  will stream all :tx-listen events. This channel must be
+  called :tx-chan and provided via the :share option to om.core/root.
+  It must be a channel constructed with cljs.core.async/pub with the
+  topic :txs.
+  Once built om-routes will act on any transactions to the nav-value
+  regardless of depth. In order to identify which transactions to act
+  on these transactions must be labeled with :om-routes.core/nav 
+  om-routes takes a variety of options via the :opts passed to
+  om.core/build:
+  :view-component - a required Om component function to render the app.
+  :nav-path - the path into the app-state that should be tracked for navigation 
+  :debug - defaults to false, turns on verbose output for debugging
+  :routes - a Bidi handler that matches the url to a state map"
   [data owner opts]
   (reify
     om/IWillMount
