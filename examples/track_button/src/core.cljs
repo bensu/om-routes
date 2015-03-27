@@ -48,10 +48,10 @@
      (reify
        om/IRender
        (render [_]
-         (om/build routes/om-routes data
-                   {:opts {:view-component view-component
-                           :route route
-                           :nav-path nav-path}}))))
+         (om/build (routes/wrap-routes view-component {:route route
+                                                       :debug true
+                                                       :nav-path nav-path})
+                   data))))
    app-state
    {:target (. js/document (getElementById "app"))
     :shared {:tx-chan tx-pub-chan}
