@@ -2,9 +2,7 @@
 
 ## Installing
 
-<!--
 [![Clojars Project](http://clojars.org/om-routes/latest-version.svg)](http://clojars.org/om-routes)
--->
 
     (:require [om-routes.core :as routes])
 
