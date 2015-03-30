@@ -41,7 +41,7 @@ need, yet I find it a useful pattern and worth considering.
                    {:opts {:view-component view-component
                            :route route
                            :debug true
-                           :nav-path nav-path}}))))
+                           :nav-path :nav}}))))
    app-state
    {:target (. js/document (getElementById "app"))
     :shared {:tx-chan tx-pub-chan}
@@ -168,7 +168,15 @@ and `nav-path` as `opts`:
 Notice adding the `:debug` option, which normally defaults to
 `false`.
 
-FIX: Add GIF.
+## Run the Examples
+
+    git clone https://github.com/bensu/om-routes
+    cd om-routes
+    lein cljsbuild once track-button
+
+Open `examples/track_button/index.html`. You can also try a more
+complicated example by replacing `track-button` with `sorting` in the
+above instructions.
 
 ## Contributions
 
