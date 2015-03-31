@@ -43,4 +43,14 @@
                                    :asset-path "out"
                                    :source-map true
                                    :source-map-timestamp true
+                                   :cache-analysis true}}
+                       {:id "refcursors"
+                        :source-paths ["src" "examples/refcursors/src"]
+                        :compiler {:output-to "examples/refcursors/out/refcursors.js"
+                                   :output-dir "examples/refcursors/out"
+                                   :optimizations :none
+                                   :main examples.refcursors.core
+                                   :asset-path "out"
+                                   :source-map true
+                                   :source-map-timestamp true
                                    :cache-analysis true}}]})
