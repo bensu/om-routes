@@ -1,9 +1,11 @@
 (ns examples.refcursors.core
-    (:require-macros [cljs.core.async.macros :refer [go]])
-    (:require [om.core :as om :include-macros true]
-              [cljs.core.async :as async :refer [put! chan]]
-              [om-routes.core :as routes]
-              [om.dom :as dom :include-macros true]))
+  "This is an attempt to work around the fact that ref-cursor transactions
+   can't be tagged."
+  (:require-macros [cljs.core.async.macros :refer [go]])
+  (:require [om.core :as om :include-macros true]
+            [cljs.core.async :as async :refer [put! chan]]
+            [om-routes.core :as routes]
+            [om.dom :as dom :include-macros true]))
 
 (enable-console-print!)
 
