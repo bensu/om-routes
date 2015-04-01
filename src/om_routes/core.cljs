@@ -73,22 +73,23 @@
                     (print-log "with url:" url)
                     (go-to url)))
                 (recur))))
-        (let [h (History.)]
+        (doto (History.)
           (goog.events/listen
-           h EventType/NAVIGATE
+           EventType/NAVIGATE
            (fn [url]
              (print-log "Got url:" (.-token url))
              (let [{:keys [handler route-params]}
                    (bidi/match-route route (str "#" (.-token url)))]
-               (print-log "that matched" (if (nil? handler)
+               (print-log "that matched" (if (nil? handler) 
                                            "no handlers"
                                            "a handler"))
                (print-log "with params:" route-params)
                (if-not (nil? handler)
                  (om/update! data nav-path (handler route-params))))))
-          (doto h (.setEnabled true)))))
+          (.setEnabled true))))
     om/IRender
     (render [_]
+      (print-log "Render view component")
       (om/build (:view-component opts) 
                 data 
                 {:opts (:opts opts)}))))
