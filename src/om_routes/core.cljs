@@ -31,7 +31,7 @@
   (if @debug-on? 
     (apply println args)))
 
-(def valid-opts #{:view-component :route :debug :nav-path :opts})
+(def valid-opts #{:view-component :route :debug :nav-path :opts :history-target})
 
 (defn om-routes
   "Creates a component that tracks a part of the state and syncs it
@@ -48,8 +48,10 @@
   om.core/build:
   :view-component - a required Om component function to render the app.
   :nav-path - the path into the app-state that should be tracked for navigation 
-  :debug - defaults to false, turns on verbose output for debugging
   :routes - a Bidi handler that matches the url to a state map
+  -- Optional
+  :debug - defaults to false, turns on verbose output for debugging
+  :history-target - InputTagElement used by goog.History
   :opts - regular om options map to pass along to the view-component"
   [data owner opts]
   (reify
@@ -73,8 +75,10 @@
                     (print-log "with url:" url)
                     (go-to url)))
                 (recur))))
-        (let [h (History. false nil (. js/document (getElementById "history")))]
-          (goog.events/listen h
+        (doto (if-let [ht (:history-target opts)] 
+                (History. false nil (:history-target opts))
+                (History.))
+          (goog.events/listen 
            EventType/NAVIGATE
            (fn [url]
              (print-log "Got url:" (.-token url))
@@ -86,9 +90,7 @@
                (print-log "with params:" route-params)
                (if-not (nil? handler)
                  (om/update! data nav-path (handler route-params))))))
-          (.setEnabled h true))))
+          (.setEnabled true))))
     om/IRender
     (render [_]
-      (om/build (:view-component opts)
-                data 
-                {:opts (:opts opts)}))))
+      (om/build (:view-component opts) data {:opts (:opts opts)}))))
