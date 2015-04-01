@@ -53,4 +53,14 @@
                                    :asset-path "out"
                                    :source-map true
                                    :source-map-timestamp true
+                                   :cache-analysis true}}
+                       {:id "indirection"
+                        :source-paths ["src" "examples/indirection/src"]
+                        :compiler {:output-to "examples/indirection/out/indirection.js"
+                                   :output-dir "examples/indirection/out"
+                                   :optimizations :none
+                                   :main examples.refcursors.core
+                                   :asset-path "out"
+                                   :source-map true
+                                   :source-map-timestamp true
                                    :cache-analysis true}}]})
