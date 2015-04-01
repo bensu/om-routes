@@ -31,6 +31,8 @@
   (if @debug-on? 
     (apply println args)))
 
+(def valid-opts #{:view-component :route :debug :nav-path :opts})
+
 (defn om-routes
   "Creates a component that tracks a part of the state and syncs it
   with the navbar to support the back, forward, and refres buttons.
@@ -87,4 +89,6 @@
           (doto h (.setEnabled true)))))
     om/IRender
     (render [_]
-      (om/build (:view-component opts) data (:opts opts)))))
+      (om/build (:view-component opts) 
+                data 
+                {:opts (:opts opts)}))))
