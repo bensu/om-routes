@@ -90,6 +90,6 @@
     om/IRender
     (render [_]
       (print-log "Render view component")
-      (om/build (:view-component opts) 
+      (om/build (:view-component opts)
                 data 
                 {:opts (:opts opts)}))))
