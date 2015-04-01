@@ -73,8 +73,8 @@
                     (print-log "with url:" url)
                     (go-to url)))
                 (recur))))
-        (doto (History.)
-          (goog.events/listen
+        (let [h (History. false nil (. js/document (getElementById "history")))]
+          (goog.events/listen h
            EventType/NAVIGATE
            (fn [url]
              (print-log "Got url:" (.-token url))
@@ -86,10 +86,9 @@
                (print-log "with params:" route-params)
                (if-not (nil? handler)
                  (om/update! data nav-path (handler route-params))))))
-          (.setEnabled true))))
+          (.setEnabled h true))))
     om/IRender
     (render [_]
-      (print-log "Render view component")
       (om/build (:view-component opts)
                 data 
                 {:opts (:opts opts)}))))

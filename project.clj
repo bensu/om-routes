@@ -21,7 +21,9 @@
 
   :source-paths ["src"]
 
-  :clean-targets ^{:protect false} ["examples/track_button/out"]
+  :clean-targets ^{:protect false} ["examples/track_button/out"
+                                    "examples/sorting/out"
+                                    "examples/refcursors/out"]
   
   :cljsbuild {
               :builds [{:id "track-button"
@@ -59,7 +61,7 @@
                         :compiler {:output-to "examples/indirection/out/indirection.js"
                                    :output-dir "examples/indirection/out"
                                    :optimizations :none
-                                   :main examples.refcursors.core
+                                   :main examples.indirection.core
                                    :asset-path "out"
                                    :source-map true
                                    :source-map-timestamp true
