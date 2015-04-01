@@ -47,7 +47,8 @@
   :view-component - a required Om component function to render the app.
   :nav-path - the path into the app-state that should be tracked for navigation 
   :debug - defaults to false, turns on verbose output for debugging
-  :routes - a Bidi handler that matches the url to a state map"
+  :routes - a Bidi handler that matches the url to a state map
+  :opts - regular om options map to pass along to the view-component"
   [data owner opts]
   (reify
     om/IWillMount
@@ -86,4 +87,4 @@
           (doto h (.setEnabled true)))))
     om/IRender
     (render [_]
-      (om/build (:view-component opts) data))))
+      (om/build (:view-component opts) data (:opts opts)))))
