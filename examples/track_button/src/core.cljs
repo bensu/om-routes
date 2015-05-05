@@ -51,6 +51,7 @@
          (om/build routes/om-routes data
                    {:opts {:view-component view-component
                            :route route
+                           :debug true
                            :nav-path nav-path}}))))
    app-state
    {:target (. js/document (getElementById "app"))

@@ -1,12 +1,20 @@
 (ns om-routes.core 
     (:require-macros [cljs.core.async.macros :refer [go]])
-    (:require [om.core :as om]
+    (:require [clojure.string :as str]
+              [om.core :as om]
               [cljs.core.async :as async :refer [put! chan]]
               [bidi.bidi :as bidi]
               [goog.events :as events]
               [goog.history.EventType :as EventType])
-    (:import goog.History))
+    (:import goog.History
+             goog.Uri))
 
+(defn get-hash
+  "Returns the current url hash"
+  []
+  (str/replace-first (.. js/window -location -hash) #"#" ""))
+
+;; FIX: find a fn in goog.history that does this and 'ensure' interop
 (defn- go-to
   "Goes to the specified url"
   [url]
@@ -31,7 +39,8 @@
   (if @debug-on? 
     (apply println args)))
 
-(def valid-opts #{:view-component :route :debug :nav-path :opts :history-target})
+(def valid-opts
+  #{:view-component :route :debug :nav-path :opts :history-target})
 
 (defn om-routes
   "Creates a component that tracks a part of the state and syncs it
@@ -61,7 +70,8 @@
             route (:route opts)
             tx-chan (om/get-shared owner :tx-chan)
             txs (chan)]
-        (if (:debug opts) (reset! debug-on? true))
+        (when (:debug opts)
+          (reset! debug-on? true))
         (async/sub tx-chan :txs txs)
         (om/set-state! owner :txs txs)
         (go (loop []
@@ -71,26 +81,25 @@
                   (let [params (get-in new-state nav-path)
                         _ (print-log "Got state:" params)
                         url (apply bidi/path-for route ::handler
-                                   (reduce concat (seq params)))]
+                              (reduce concat (seq params)))]
                     (print-log "with url:" url)
                     (go-to url)))
                 (recur))))
-        (doto (if-let [ht (:history-target opts)] 
-                (History. false nil (:history-target opts))
-                (History.))
-          (goog.events/listen 
-           EventType/NAVIGATE
-           (fn [url]
-             (print-log "Got url:" (.-token url))
-             (let [{:keys [handler route-params]}
-                   (bidi/match-route route (str "#" (.-token url)))]
-               (print-log "that matched" (if (nil? handler) 
-                                           "no handlers"
-                                           "a handler"))
-               (print-log "with params:" route-params)
-               (if-not (nil? handler)
-                 (om/update! data nav-path (handler route-params))))))
-          (.setEnabled true))))
+        (letfn [(match-url [url]
+                  (print-log "Got url:" (.-token url))
+                  (let [{:keys [handler route-params]}
+                        (bidi/match-route route (str "#" (.-token url)))]
+                    (print-log "that matched" (if (nil? handler) 
+                                                "no handlers"
+                                                "a handler"))
+                    (print-log "with params:" route-params)
+                    (if-not (nil? handler)
+                      (om/update! data nav-path (handler route-params)))))] 
+          (doto (if-let [ht (:history-target opts)] 
+                  (History. false nil (:history-target opts))
+                  (History.))
+            (goog.events/listen EventType/NAVIGATE match-url)
+            (.setEnabled true)))))
     om/IRender
     (render [_]
       (om/build (:view-component opts) data {:opts (:opts opts)}))))
