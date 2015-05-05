@@ -163,8 +163,7 @@ and `nav-path` as `opts`:
                  (put! tx-chan [tx-data root-cursor]))}))
 ```
 
-Notice adding the `:debug` option, which normally defaults to
-`false`.
+Notice adding the `:debug` option, which defaults to `false`.
 
 ## Run the Examples
 

@@ -7,8 +7,6 @@
   :scm {:name "git"
         :url "https://github.com/bensu/om-routes"}
 
-  :signing {:gpg-key "sbensu@gmail.com"}
-
   :deploy-repositories [["clojars" {:creds :gpg}]]
 
   :dependencies [[org.clojure/clojure "1.6.0"]
