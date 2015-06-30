@@ -1,4 +1,4 @@
-(defproject om-routes "0.1.0-SNAPSHOT"
+(defproject om-routes "0.1.1-SNAPSHOT"
   :description "Sync Om state with Navigation Bar"
   :url "http://github.com/bensu/om-routes"
   :license {:name "Eclipse Public License"
@@ -9,11 +9,11 @@
 
   :deploy-repositories [["clojars" {:creds :gpg}]]
 
-  :dependencies [[org.clojure/clojure "1.7.0-beta2"]
-                 [org.clojure/clojurescript "0.0-3211" :scope "provided"]
+  :dependencies [[org.clojure/clojure "1.7.0-RC2"]
+                 [org.clojure/clojurescript "0.0-3308" :scope "provided"]
                  [org.clojure/core.async "0.1.346.0-17112a-alpha"]
-                 [org.omcljs/om "0.8.8" :scope "provided"]
-                 [bidi "1.18.7"]]
+                 [bensu/om "0.8.9-SNAPSHOT"]
+                 [bidi "1.20.0"]]
 
   :plugins [[lein-cljsbuild "1.0.5"]]
 

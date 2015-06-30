@@ -100,6 +100,7 @@
                   (History.))
             (goog.events/listen EventType/NAVIGATE match-url)
             (.setEnabled true)))))
+    ;; TODO: unlisten EventType/NAVIGATE on IWillUnmount
     om/IRender
     (render [_]
       (om/build (:view-component opts) data {:opts (:opts opts)}))))
